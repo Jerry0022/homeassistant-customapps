@@ -1,0 +1,88 @@
+name: Publish to PyPI
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+  id-token: write  # Required for trusted publishing (OIDC)
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    name: Build distribution
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install build tools
+        run: pip install build
+
+      - name: Build package
+        run: python -m build
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    name: Publish to PyPI
+    environment: pypi
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        # No API token needed — uses OIDC trusted publishing.
+        # Configure the trusted publisher on pypi.org:
+        #   Owner: Jerry0022
+        #   Repository: homeassistant-customapps
+        #   Workflow: publish.yml
+        #   Environment: pypi
+
+  release:
+    needs: publish
+    runs-on: ubuntu-latest
+    name: Create GitHub Release
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Extract version
+        id: version
+        run: echo "version=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "v${{ steps.version.outputs.version }}"
+          body: |
+            ## ha-customapps v${{ steps.version.outputs.version }}
+
+            Install: `pip install ha-customapps==${{ steps.version.outputs.version }}`
+
+            Or in HA manifest.json: `"requirements": ["ha-customapps>=${{ steps.version.outputs.version }}"]`
+          files: dist/*

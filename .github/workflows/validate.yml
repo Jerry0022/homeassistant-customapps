@@ -1,0 +1,34 @@
+name: Validate
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    name: Validate code
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Check Python syntax
+        run: find src -name "*.py" -exec python -m py_compile {} +
+
+      - name: Check JavaScript syntax
+        run: find frontend -name "*.js" -exec node --check {} +
+
+      - name: Test build
+        run: |
+          pip install build
+          python -m build
