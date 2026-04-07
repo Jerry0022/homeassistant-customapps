@@ -1,0 +1,88 @@
+# Generic CI Validation Workflow for HA Custom Apps
+# Replace __DOMAIN__ and __ADDON_SLUG__ with your values.
+
+name: Validate
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    name: Validate code and versions
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      # Python syntax check
+      - name: Check Python syntax
+        run: |
+          find custom_components/__DOMAIN__ -name "*.py" -exec python -m py_compile {} +
+
+      # JavaScript syntax check (if frontend exists)
+      - name: Check JavaScript syntax
+        run: |
+          if [ -d "custom_components/__DOMAIN__/frontend" ]; then
+            find custom_components/__DOMAIN__/frontend -name "*.js" -exec node --check {} +
+          fi
+
+      # YAML/JSON validation
+      - name: Validate structured files
+        run: |
+          python -c "
+          import yaml, json, sys
+          errors = []
+          yaml_files = [
+              'custom_components/__DOMAIN__/services.yaml',
+              '__ADDON_SLUG__/config.yaml',
+              '__ADDON_SLUG__/build.yaml',
+          ]
+          json_files = [
+              'custom_components/__DOMAIN__/manifest.json',
+              'custom_components/__DOMAIN__/strings.json',
+          ]
+          for f in yaml_files:
+              try:
+                  with open(f) as fh:
+                      yaml.safe_load(fh)
+              except FileNotFoundError:
+                  pass
+              except Exception as e:
+                  errors.append(f'{f}: {e}')
+          for f in json_files:
+              try:
+                  with open(f) as fh:
+                      json.load(fh)
+              except FileNotFoundError:
+                  pass
+              except Exception as e:
+                  errors.append(f'{f}: {e}')
+          if errors:
+              print('Validation errors:')
+              for e in errors:
+                  print(f'  {e}')
+              sys.exit(1)
+          print('All files valid.')
+          "
+
+      # Version alignment
+      - name: Check version alignment
+        run: python scripts/bump_versions.py --check
+
+      # Payload sync (if addon exists)
+      - name: Check payload sync
+        run: |
+          if [ -f "scripts/sync_addon_payload.py" ]; then
+            python scripts/sync_addon_payload.py --check
+          fi

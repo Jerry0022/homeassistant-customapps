@@ -1,0 +1,28 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "__ADDON_NAME__ Setup",
+        "description": "Configure __ADDON_NAME__.",
+        "data": {}
+      }
+    },
+    "abort": {
+      "already_configured": "__ADDON_NAME__ is already configured."
+    }
+  },
+  "issues": {
+    "restart_required": {
+      "title": "__ADDON_NAME__ Update — Restart Required",
+      "description": "__ADDON_NAME__ has been updated to version {version}. A restart is required to apply the new version.",
+      "fix_flow": {
+        "step": {
+          "init": {
+            "title": "Restart Home Assistant",
+            "description": "__ADDON_NAME__ has been updated to version {version}. Home Assistant must be restarted to apply the update.\n\nClick **Submit** to restart now."
+          }
+        }
+      }
+    }
+  }
+}

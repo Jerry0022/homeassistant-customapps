@@ -1,0 +1,63 @@
+# Generic Release Workflow for HA Custom Apps
+# Triggered by pushing a version tag (e.g. v1.2.3).
+
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    name: Create GitHub Release
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      # Pre-release validation
+      - name: Validate before release
+        run: |
+          python scripts/bump_versions.py --check
+          if [ -f "scripts/sync_addon_payload.py" ]; then
+            python scripts/sync_addon_payload.py --check
+          fi
+
+      # Extract version from tag
+      - name: Extract version
+        id: version
+        run: echo "version=${GITHUB_REF#refs/tags/v}" >> "$GITHUB_OUTPUT"
+
+      # Extract changelog section for this version
+      - name: Extract changelog
+        id: changelog
+        run: |
+          version="${{ steps.version.outputs.version }}"
+          if [ -f "CHANGELOG.md" ]; then
+            changelog=$(sed -n "/## \[$version\]/,/## \[/p" CHANGELOG.md | head -n -1)
+          else
+            changelog="Release v$version"
+          fi
+          {
+            echo "changelog<<EOF"
+            echo "$changelog"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      # Create GitHub Release
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "v${{ steps.version.outputs.version }}"
+          body: |
+            ${{ steps.changelog.outputs.changelog }}
+          draft: false
+          prerelease: ${{ contains(steps.version.outputs.version, '-') }}

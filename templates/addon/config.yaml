@@ -1,0 +1,24 @@
+# Companion Add-on Configuration Template
+# Replace __DOMAIN__, __ADDON_NAME__, __ADDON_SLUG__, __DESCRIPTION__, __REPO_URL__
+name: "__ADDON_NAME__"
+version: "0.1.0"
+slug: "__ADDON_SLUG__"
+description: >-
+  __DESCRIPTION__
+url: "__REPO_URL__"
+startup: once
+boot: auto
+init: false
+homeassistant: "2024.1.0"
+hassio_api: true
+auth_api: true
+arch:
+  - aarch64
+  - amd64
+  - armhf
+  - armv7
+  - i386
+map:
+  - type: homeassistant_config
+    read_only: false
+    path: /config

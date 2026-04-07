@@ -1,0 +1,32 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ha-customapps"
+version = "0.1.0"
+description = "Shared framework for Home Assistant custom integrations, add-ons, and dashboard panels"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+authors = [
+    { name = "Jerry0022", email = "noreply@github.com" },
+]
+keywords = ["home-assistant", "custom-component", "add-on", "integration"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Home Automation",
+]
+dependencies = [
+    "cryptography>=42.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/Jerry0022/homeassistant-customapps"
+Repository = "https://github.com/Jerry0022/homeassistant-customapps"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ha_customapps"]
