@@ -6,8 +6,8 @@ manifest.json ``requirements`` so HA auto-installs it.
 
 Usage in a custom integration::
 
-    # manifest.json
-    { "requirements": ["ha-customapps>=0.1.0"] }
+    # manifest.json — install from GitHub release archive
+    { "requirements": ["ha-customapps @ https://github.com/Jerry0022/homeassistant-customapps/archive/refs/tags/v0.2.0.zip"] }
 
     # __init__.py
     from ha_customapps.restart import RestartNotifier
@@ -15,4 +15,4 @@ Usage in a custom integration::
     from ha_customapps.credential_store import CredentialStore
 """
 
-__version__ = "0.1.0"
+__version__ = "0.2.0"
