@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  id-token: write
 
 jobs:
   build:
@@ -32,8 +33,30 @@ jobs:
           name: dist
           path: dist/
 
-  release:
+  publish:
     needs: build
+    runs-on: ubuntu-latest
+    name: Publish to PyPI
+    environment: pypi
+
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        # Uses OIDC trusted publishing — no API token needed.
+        # Trusted publisher configured on pypi.org:
+        #   Owner: Jerry0022
+        #   Repository: homeassistant-customapps
+        #   Workflow: publish.yml
+        #   Environment: pypi
+
+  release:
+    needs: publish
     runs-on: ubuntu-latest
     name: Create GitHub Release
 
@@ -61,11 +84,11 @@ jobs:
 
             In your HA integration `manifest.json`:
             ```json
-            "requirements": ["ha-customapps @ https://github.com/Jerry0022/homeassistant-customapps/archive/refs/tags/v${{ steps.version.outputs.version }}.zip"]
+            "requirements": ["ha-customapps==${{ steps.version.outputs.version }}"]
             ```
 
             Or via pip:
             ```bash
-            pip install https://github.com/Jerry0022/homeassistant-customapps/archive/refs/tags/v${{ steps.version.outputs.version }}.zip
+            pip install ha-customapps==${{ steps.version.outputs.version }}
             ```
           files: dist/*
