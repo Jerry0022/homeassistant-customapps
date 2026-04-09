@@ -7,7 +7,7 @@ manifest.json ``requirements`` so HA auto-installs it.
 Usage in a custom integration::
 
     # manifest.json
-    { "requirements": ["ha-customapps>=0.2.0"] }
+    { "requirements": ["ha-customapps@git+https://github.com/Jerry0022/homeassistant-customapps.git@v0.2.0"] }
 
     # __init__.py
     from ha_customapps.restart import RestartNotifier
