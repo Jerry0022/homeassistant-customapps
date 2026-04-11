@@ -200,6 +200,31 @@ The `templates/` directory contains ready-to-use scaffolding. Copy and replace t
 | `__ADDON_SLUG__` | `my_app_companion` |
 | `__DESCRIPTION__` | `Companion add-on for My App integration` |
 | `__REPO_URL__` | `https://github.com/user/repo` |
+| `__REPO_NAME__` | `My App Add-ons` |
+| `__MAINTAINER__` | `Your Name <you@example.com>` |
+
+### Add-on Repository Structure
+
+For HA Supervisor to recognize a GitHub repo as an add-on repository, it needs:
+
+1. `repository.yaml` at the repo root (use the template in `templates/addon/`)
+2. At least one subdirectory containing a `config.yaml` (the add-on)
+
+Minimal repo structure:
+
+```
+repository.yaml              # Required — repo metadata for HA Supervisor
+my_addon/                    # Add-on directory (one per add-on)
+├── config.yaml              # Required — add-on metadata
+├── Dockerfile               # Required — build instructions
+├── build.yaml               # Multi-arch base images
+└── run.sh                   # Entry point
+custom_components/my_app/    # Optional — custom integration (for HACS)
+├── manifest.json
+└── ...
+```
+
+The `repository.yaml` template uses three placeholders: `__REPO_NAME__`, `__REPO_URL__`, and `__MAINTAINER__`.
 
 ### Companion Add-on
 

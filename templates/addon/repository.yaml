@@ -1,0 +1,5 @@
+# Add-on Repository Metadata
+# Replace __REPO_NAME__, __REPO_URL__, __MAINTAINER__
+name: "__REPO_NAME__"
+url: "__REPO_URL__"
+maintainer: "__MAINTAINER__"
